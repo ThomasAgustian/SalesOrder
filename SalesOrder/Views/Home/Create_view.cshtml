@@ -1,0 +1,394 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Add Item</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.21/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Optional: Styling for the modal */
+        .modal-content {
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-info">
+        <h2>ADD NEW - SALES ORDER</h2>
+    </div>
+    @using (Html.BeginForm("Save_add", "Home", FormMethod.Post))
+    {
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h3>Sales Order Information</h3>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="ORDER_NO" class="form-label">Sales Order Number</label>
+                        <input type="text" class="form-control" name="ORDER_NO" placeholder="Input here" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="ORDER_DATE" class="form-label">Order Date</label>
+                        <input type="date" class="form-control" name="ORDER_DATE" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="COM_CUSTOMER_ID" class="form-label">Customer</label>
+                        <select class="form-select" name="COM_CUSTOMER_ID" required>
+                            <option value="">Select One</option>
+                            <option value="1">PROFES</option>
+                            <option value="2">TITAN</option>
+                            <option value="3">DIPS</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ADDRESS" class="form-label">Address</label>
+                        <textarea class="form-control" name="ADDRESS" placeholder="Input here" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h3>Detail Item Information</h3>
+                </div>
+                <div class="col-12 mb-4">
+                    <button type="button" class="btn btn-success" id="add_item" data-bs-toggle="modal" data-bs-target="#addItemModal">Add Item</button>
+                </div>
+
+                <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addItemModalLabel">Add Item</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="itemName" class="form-label">Item Name</label>
+                                    <input type="text" class="form-control" id="itemName" name="itemName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="itemQty" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="itemQty" name="itemQty" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="itemPrice" class="form-label">Price</label>
+                                    <input type="number" class="form-control" id="itemPrice" name="itemPrice" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="saveItem">Save Item</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <table id="list_item" class="table">
+                        <thead>
+                            <tr>
+                                <th>NO</th>
+                                <th>ACTION</th>
+                                <th>ITEM NAME</th>
+                                <th>QTY</th>
+                                <th>PRICE</th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5">Total Items: <span id="totalItems">0</span></td>
+                                <td>Total Amount: <span id="totalAmount">0</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveModal" id="saveconf">
+                Save
+            </button>
+
+            <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="saveModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="saveModalLabel">Confirmation to save</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure want to save change?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="batal">Batal</button>
+                            <input type="submit" class="btn btn-danger" value="Save" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="editItemName" class="form-label">Item Name</label>
+                                <input type="text" class="form-control" id="editItemName" name="editItemName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editItemQty" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="editItemQty" name="editItemQty" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editItemPrice" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="editItemPrice" name="editItemPrice" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="updateItem">Update Item</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this item?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger" id="deleteItem">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: none;">
+            <input type="hidden" name="ITEM_NAME[]" id="itemNameHidden" />
+            <input type="hidden" name="QUANTITY[]" id="itemQtyHidden" />
+            <input type="hidden" name="PRICE[]" id="itemPriceHidden" />
+        </div>
+        <script>
+
+            let itemCount = 0;
+            let totalQty = 0;
+            let totalAmount = 0;
+            let itemToDelete = null;
+            let itemToEdit = null;
+
+            $('#saveItem').on('click', function () {
+                let itemName = $('#itemName').val();
+                let itemQty = parseInt($('#itemQty').val());
+                let itemPrice = parseFloat($('#itemPrice').val());
+
+                if (itemName && itemQty && itemPrice) {
+                    itemCount++;
+                    let total = itemQty * itemPrice;
+
+                    $('#list_item tbody').append(`
+                                            <tr data-id="${itemCount}">
+                                                <td>${itemCount}</td>
+                                                <td>
+                                                    <button class="btn btn-warning editItem" data-id="${itemCount}">Edit</button>
+                                                    <button class="btn btn-danger deleteItem" data-id="${itemCount}">Delete</button>
+                                                </td>
+                                                <td>${itemName}</td>
+                                                <td>${itemQty}</td>
+                                                <td>${itemPrice.toFixed(2)}</td>
+                                                <td>${total.toFixed(2)}</td>
+                                            </tr>
+                                        `);
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'ITEM_NAME[]',
+                        value: itemName
+                    }).appendTo('form');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'QUANTITY[]',
+                        value: itemQty
+                    }).appendTo('form');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'PRICE[]',
+                        value: itemPrice
+                    }).appendTo('form');
+
+                    totalQty += itemQty;
+                    totalAmount += total;
+                    $('#totalItems').text(totalQty);
+                    $('#totalAmount').text(totalAmount.toFixed(2));
+
+                    $('#itemName').val('');
+                    $('#itemQty').val('');
+                    $('#itemPrice').val('');
+
+                    $('#addItemModal').modal('hide');
+                } else {
+                    alert("Please fill out all fields.");
+                }
+            });
+
+
+            $(document).on('click', '.editItem', function () {
+                let row = $(this).closest('tr');
+
+                let itemCount = $(this).data('id');
+
+                itemToEdit = row; 
+
+                $('#editItemName').val(row.find('td').eq(2).text()); 
+                $('#editItemQty').val(row.find('td').eq(3).text()); 
+                $('#editItemPrice').val(row.find('td').eq(4).text()); 
+
+                $('#editItemModal').modal('show');
+
+                $('#editItemModal').data('itemCount', itemCount);
+            });
+
+            $('#updateItem').on('click', function () {
+                let itemName = $('#editItemName').val();
+                let itemQty = parseInt($('#editItemQty').val()); 
+                let itemPrice = parseFloat($('#editItemPrice').val()); 
+
+                if (itemName && itemQty && itemPrice) {
+                    let total = itemQty * itemPrice;
+
+                    let itemCount = $('#editItemModal').data('itemCount');
+
+                    itemToEdit.find('td').eq(2).text(itemName); 
+                    itemToEdit.find('td').eq(3).text(itemQty); 
+                    itemToEdit.find('td').eq(4).text(itemPrice.toFixed(2)); 
+                    itemToEdit.find('td').eq(5).text(total.toFixed(2));
+
+                    totalQty = 0;
+                    totalAmount = 0;
+                    $('#list_item tbody tr').each(function () {
+                        totalQty += parseInt($(this).find('td').eq(3).text()); 
+                        totalAmount += parseFloat($(this).find('td').eq(5).text()); 
+                    });
+
+                    $('#totalItems').text(totalQty);
+                    $('#totalAmount').text(totalAmount.toFixed(2));
+
+                    $('input[name="ITEM_NAME[]"]').eq(itemCount).val(itemName);
+                    $('input[name="QUANTITY[]"]').eq(itemCount).val(itemQty);
+                    $('input[name="PRICE[]"]').eq(itemCount).val(itemPrice);
+
+                    $('#editItemModal').modal('hide');
+                } else {
+                    alert("Please fill out all fields.");
+                }
+            });
+
+
+
+            $(document).on('click', '.deleteItem', function () {
+                itemToDelete = $(this).closest('tr');
+
+                let itemCount = $(this).data('id'); 
+
+                $('#confirmDeleteModal').data('itemCount', itemCount);
+
+                $('#confirmDeleteModal').modal('show');
+            });
+
+            $('#deleteItem').on('click', function () {
+                let itemCount = $('#confirmDeleteModal').data('itemCount');
+
+                let itemQty = parseInt(itemToDelete.find('td').eq(3).text());
+                let itemTotal = parseFloat(itemToDelete.find('td').eq(5).text());
+
+                totalQty -= itemQty;
+                totalAmount -= itemTotal;
+
+                $('#totalItems').text(totalQty);
+                $('#totalAmount').text(totalAmount.toFixed(2));
+
+                itemToDelete.remove();
+
+                $('input[name="ITEM_NAME[]"]').eq(itemCount).remove();
+                $('input[name="QUANTITY[]"]').eq(itemCount).remove();
+                $('input[name="PRICE[]"]').eq(itemCount).remove();
+
+                $('#confirmDeleteModal').modal('hide');
+            });
+
+        </script>
+        <script>
+            const itemName = document.getElementById("itemName");
+            const itemQty = document.getElementById("itemQty");
+            const itemPrice = document.getElementById("itemPrice");
+            const editItemName = document.getElementById("editItemName");
+            const editItemQty = document.getElementById("editItemQty");
+            const editItemPrice = document.getElementById("editItemPrice");
+
+            const saveConfButton = document.getElementById("saveconf");
+            const batalButton = document.getElementById("batal");
+
+            function setRequired(isRequired) {
+                itemName.required = isRequired;
+                itemQty.required = isRequired;
+                itemPrice.required = isRequired;
+                editItemName.required = isRequired;
+                editItemQty.required = isRequired;
+                editItemPrice.required = isRequired;
+            }
+
+            saveConfButton.addEventListener("click", function () {
+                setRequired(false); 
+            });
+
+            batalButton.addEventListener("click", function () {
+                setRequired(true); 
+            });
+        </script>
+
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+        Swal.fire({
+        title: '@TempData["SuccessMessage"]',
+        icon: "success"
+        });
+        </script>
+    }
+</body>
+</html>
+
+

@@ -1,0 +1,103 @@
+﻿@using SalesOrder.Models;
+@model List<Customer>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.21/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> 
+</head>
+<body>
+
+    <div class="bg-info">
+        <h2>SALES ORDER</h2>
+    </div>
+    <div>
+        <div>
+            <a href="@Url.Action("Create_view", "Home")" class="btn btn-danger">Add New Data</a>
+            <a href="@Url.Action("export", "Home")" class="btn btn-success">Export to Excel</a>
+        </div>
+
+        <table class="display" id="example" style="width:100%">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Action</th>
+                    <th>Sales Order</th>
+                    <th>Order Date</th>
+                    <th>Customer Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int no = 1;
+                    foreach (var customer in Model)
+                    {
+                        <tr>
+                            <td>@no</td>
+                            <td>
+                                <a href="@Url.Action("Edit_view", "Home", new { SO_ORDER_ID = @customer.SO_ORDER_ID })" class="btn btn-danger">Edit</a>
+                                <a class="btn btn-info delete-btn" data-target="#deleteConfirmationModal_@customer.SO_ORDER_ID">Delete</a>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteConfirmationModal_@customer.SO_ORDER_ID" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete this item? This action cannot be undone.
+                                            </div>
+                                            <div class="modal-footer">
+                                                @using (Html.BeginForm("delete_index", "Home", FormMethod.Post))
+                                                {
+                                                    <input type="text" value="@customer.SO_ORDER_ID" name="SO_ORDER_ID" hidden />
+                                                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@customer.ORDER_NO</td>
+                            <td>@customer.ORDER_DATE</td>
+                            <td>@customer.CUSTOMER_NAME</td>
+                        </tr>
+                        no++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            new DataTable('#example');
+        });
+        $('.delete-btn').on('click', function () {
+            var modalId = $(this).data('target'); 
+            $(modalId).modal('show');
+        });
+
+        $(document).on('click', '.cancel-btn', function () {
+            $(this).closest('.modal').modal('hide');
+        });
+     </script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                title: '@TempData["SuccessMessage"]',
+                icon: "success"
+            });
+        </script>
+    }
+
+</body>
+</html>
